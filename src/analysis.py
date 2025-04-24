@@ -4,15 +4,15 @@ from typing import List, Dict, Tuple
 
 def analyze_yearly_trends(df: pd.DataFrame, metric: str) -> Dict[int, float]:
     """Calculate yearly averages for temperature"""
-    return df.groupby(df['year'])[metric].mean().to_dict()
+    return df.groupby(df['year'], observed=False)[metric].mean().to_dict()
 
 def compare_seasons(df: pd.DataFrame, metric: str) -> Dict[str, Dict[str, float]]:
     """Compare seasonal statitistics for rainfall across seasons"""
-    return df.groupby('season')[metric].agg(['mean', 'min', 'max']).to_dict('index')
+    return df.groupby('season', observed=False)[metric].agg(['mean', 'min', 'max']).to_dict('index')
 
 def predict_future_trend(df: pd.DataFrame, metric: str, periods: int = 1) -> Tuple[list, list]:
     """Linear regression to predict future values of a metric"""
-    yearly_average = df.groupby('year')[metric].mean()
+    yearly_average = df.groupby('year', observed=False)[metric].mean()
     x = np.arange(len(yearly_average))
     y = yearly_average.values
 
@@ -24,8 +24,17 @@ def predict_future_trend(df: pd.DataFrame, metric: str, periods: int = 1) -> Tup
     future_years = np.arange(len(yearly_average), len(yearly_average) + periods)
     prediction = [p(x) for x in future_years]
 
-    return (yearly_average.index.tolist() + [int(yearly_average.index[-1]) + i for i in range(1, periods)],
-    list(yearly_average.values) + prediction)
+    # Ensure both arrays are of the same length
+    years = yearly_average.index.tolist()
+    values = list(yearly_average.values)
+
+    # Add future years and predictions to the lists
+    future_to_years = [int(years[-1]) + i for i in range(periods)]
+    years.extend(future_to_years)
+    values.extend(prediction)
+
+    # Return the years and predicted values
+    return years, values
 
 
 

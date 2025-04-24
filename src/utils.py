@@ -37,18 +37,30 @@ def validate_years(years: List[int]) -> bool:
 def formal_results(data: dict) -> str:
     """
     Format the results for display.
-    """
     
+    Args:
+        data (dict): Dictionary containing analysis results
+        
+    Returns:
+        str: Formatted string of results
+    """
     output = []
     for key, value in data.items():
         if isinstance(value, dict):
             output.append(f"{key}:")
             for sub_key, sub_value in value.items():
-                output.append(f"  {sub_key}: {sub_value:.2f}")
+                # Handle different numeric types
+                if isinstance(sub_value, (int, float)):
+                    output.append(f"  {sub_key}: {sub_value:.2f}")
+                else:
+                    output.append(f"  {sub_key}: {sub_value}")
         else:
-            output.append(f"{key}: {value:.2f}")
+            # Handle different numeric types
+            if isinstance(value, (int, float)):
+                output.append(f"{key}: {value:.2f}")
+            else:
+                output.append(f"{key}: {value}")
     return "\n".join(output)
-
 
 
 # ...Testing Functionality...
@@ -98,7 +110,7 @@ if __name__ == "__main__":
     print("Formatted output:")
     print(formatted)
 
-print("\nAll unitilis testes completed successfully.")
+print("\nAll utilis tests completed successfully.")
 
 # The above code defines utility functions for validating data and formatting results.
 # The functions are designed to ensure that the data being processed is in the correct format and type.
